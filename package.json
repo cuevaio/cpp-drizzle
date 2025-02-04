@@ -1,0 +1,23 @@
+{
+  "name": "cpp-drizzle",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "drizzle:introspect": "drizzle-kit introspect",
+    "studio": "drizzle-kit studio"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
+    "@types/bun": "latest",
+    "@types/uuid": "^9.0.8",
+    "drizzle-kit": "^0.21.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.30.10",
+    "postgres": "^3.4.4",
+    "uuid": "^9.0.1"
+  }
+}

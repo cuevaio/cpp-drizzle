@@ -103,44 +103,68 @@ SELECT
   'System',
   CURRENT_DATE - INTERVAL '7 days';
 
--- Insert Hourly Availability (3 days ago - 96 records) for Gas Unit
+-- Insert Hourly Availability (3 days ago - first create DRAFT records, then duplicate as PUBLISHED)
+WITH draft_records AS (
+  INSERT INTO hourly_availability (
+    id, unit_id, fixed_availability_id, date, hour, market_type,
+    fueltype1_net_cpty, fueltype1_availability_net_cpty,
+    fueltype1_cil, fueltype1_lie,
+    operation_type, status, status_code, comments,
+    created_by, modified_by, modified_on
+  )
+  SELECT
+    uuid_generate_v4(),
+    (SELECT id FROM unit WHERE name = 'Gas Unit'),
+    (SELECT id FROM fixed_availability WHERE unit_id = (SELECT id FROM unit WHERE name = 'Gas Unit') LIMIT 1),
+    CURRENT_DATE - INTERVAL '3 days',
+    CASE 
+      WHEN generate_series < 24 THEN generate_series + 1
+      ELSE generate_series - 23
+    END,
+    CASE 
+      WHEN generate_series < 24 THEN 'MDA'
+      ELSE 'MTR'
+    END,
+    floor(random() * 501),
+    floor(random() * 501),
+    floor(random() * 501),
+    floor(random() * 501),
+    (ARRAY['Disponible a Despacho', 'Operación Obligada', 'Operación No Disponible'])[floor(random() * 3 + 1)],
+    'DRAFT',
+    1,
+    (ARRAY['Comment 1', 'Comment 2', 'Comment 3'])[floor(random() * 3 + 1)],
+    'System',
+    'System',
+    CURRENT_DATE - INTERVAL '3 days'
+  FROM generate_series(0, 47) AS generate_series
+  RETURNING *
+)
 INSERT INTO hourly_availability (
   id, unit_id, fixed_availability_id, date, hour, market_type,
   fueltype1_net_cpty, fueltype1_availability_net_cpty,
-
   fueltype1_cil, fueltype1_lie,
   operation_type, status, status_code, comments,
   created_by, modified_by, modified_on
 )
 SELECT
   uuid_generate_v4(),
-  (SELECT id FROM unit WHERE name = 'Gas Unit'),
-  (SELECT id FROM fixed_availability WHERE unit_id = (SELECT id FROM unit WHERE name = 'Gas Unit') LIMIT 1),
-  CURRENT_DATE - INTERVAL '3 days',
-  CASE 
-    WHEN generate_series < 24 THEN generate_series + 1
-    WHEN generate_series < 48 THEN generate_series - 23
-    WHEN generate_series < 72 THEN generate_series - 47
-    ELSE generate_series - 71
-  END,
-  CASE 
-    WHEN generate_series < 48 THEN 
-      CASE WHEN generate_series < 24 THEN 'MDA' ELSE 'MTR' END
-    ELSE 
-      CASE WHEN generate_series < 72 THEN 'MDA' ELSE 'MTR' END
-  END,
-  floor(random() * 501),
-  floor(random() * 501),
-  floor(random() * 501),
-  floor(random() * 501),
-  (ARRAY['Disponible a Despacho', 'Operación Obligada', 'Operación No Disponible'])[floor(random() * 3 + 1)],
-  CASE WHEN generate_series < 48 THEN 'DRAFT' ELSE 'PUBLISHED' END,
-  CASE WHEN generate_series < 48 THEN 1 ELSE 2 END,
-  (ARRAY['Comment 1', 'Comment 2', 'Comment 3'])[floor(random() * 3 + 1)],
-  'System',
-  'System',
-  CURRENT_DATE - INTERVAL '3 days'
-FROM generate_series(0, 95) AS generate_series;
+  unit_id,
+  fixed_availability_id,
+  date,
+  hour,
+  market_type,
+  fueltype1_net_cpty,
+  fueltype1_availability_net_cpty,
+  fueltype1_cil,
+  fueltype1_lie,
+  operation_type,
+  'PUBLISHED',  -- Change status to PUBLISHED
+  2,           -- Change status_code to 2
+  comments,
+  created_by,
+  modified_by,
+  modified_on
+FROM draft_records;
 
 -- Insert Hourly Availability (2 days ago - 48 records) for Gas Unit
 INSERT INTO hourly_availability (
@@ -233,49 +257,80 @@ SELECT
   CURRENT_DATE - INTERVAL '7 days';
 
 
--- Insert Hourly Availability (3 days ago - 96 records) for Wind and Solar Unit
+-- Insert Hourly Availability (3 days ago - first create DRAFT records, then duplicate as PUBLISHED)
+WITH draft_records AS (
+  INSERT INTO hourly_availability (
+    id, unit_id, fixed_availability_id, date, hour, market_type,
+    fueltype1_net_cpty, fueltype1_availability_net_cpty,
+    fueltype1_cil, fueltype1_lie,
+    fueltype2_net_cpty, fueltype2_availability_net_cpty,
+    fueltype2_cil, fueltype2_lie,
+    operation_type, status, status_code, comments,
+    created_by, modified_by, modified_on
+  )
+  SELECT
+    uuid_generate_v4(),
+    (SELECT id FROM unit WHERE name = 'Wind and Solar Unit'),
+    (SELECT id FROM fixed_availability WHERE unit_id = (SELECT id FROM unit WHERE name = 'Wind and Solar Unit') LIMIT 1),
+    CURRENT_DATE - INTERVAL '3 days',
+    CASE 
+      WHEN generate_series < 24 THEN generate_series + 1
+      ELSE generate_series - 23
+    END,
+    CASE 
+      WHEN generate_series < 24 THEN 'MDA'
+      ELSE 'MTR'
+    END,
+    floor(random() * 501),
+    floor(random() * 501),
+    floor(random() * 501),
+    floor(random() * 501),
+    floor(random() * 501),
+    floor(random() * 501),
+    floor(random() * 501),
+    floor(random() * 501),
+    (ARRAY['Disponible a Despacho', 'Operación Obligada', 'Operación No Disponible'])[floor(random() * 3 + 1)],
+    'DRAFT',
+    1,
+    (ARRAY['Comment 1', 'Comment 2', 'Comment 3'])[floor(random() * 3 + 1)],
+    'System',
+    'System',
+    CURRENT_DATE - INTERVAL '3 days'
+  FROM generate_series(0, 47) AS generate_series
+  RETURNING *
+)
 INSERT INTO hourly_availability (
-  id, unit_id, fixed_availability_id, date, hour, market_type,
-  fueltype1_net_cpty, fueltype1_availability_net_cpty,
-  fueltype1_cil, fueltype1_lie,
-  fueltype2_net_cpty, fueltype2_availability_net_cpty,
-  fueltype2_cil, fueltype2_lie,
-  operation_type, status, status_code, comments,
-  created_by, modified_by, modified_on
+    id, unit_id, fixed_availability_id, date, hour, market_type,
+    fueltype1_net_cpty, fueltype1_availability_net_cpty,
+    fueltype1_cil, fueltype1_lie,
+    fueltype2_net_cpty, fueltype2_availability_net_cpty,
+    fueltype2_cil, fueltype2_lie,
+    operation_type, status, status_code, comments,
+    created_by, modified_by, modified_on
 )
 SELECT
   uuid_generate_v4(),
-  (SELECT id FROM unit WHERE name = 'Wind and Solar Unit'),
-  (SELECT id FROM fixed_availability WHERE unit_id = (SELECT id FROM unit WHERE name = 'Wind and Solar Unit') LIMIT 1),
-  CURRENT_DATE - INTERVAL '3 days',
-  CASE 
-    WHEN generate_series < 24 THEN generate_series + 1
-    WHEN generate_series < 48 THEN generate_series - 23
-    WHEN generate_series < 72 THEN generate_series - 47
-    ELSE generate_series - 71
-  END,
-  CASE 
-    WHEN generate_series < 48 THEN 
-      CASE WHEN generate_series < 24 THEN 'MDA' ELSE 'MTR' END
-    ELSE 
-      CASE WHEN generate_series < 72 THEN 'MDA' ELSE 'MTR' END
-  END,
-  floor(random() * 501),
-  floor(random() * 501),
-  floor(random() * 501),
-  floor(random() * 501),
-  floor(random() * 501),
-  floor(random() * 501),
-  floor(random() * 501),
-  floor(random() * 501),
-  (ARRAY['Disponible a Despacho', 'Operación Obligada', 'Operación No Disponible'])[floor(random() * 3 + 1)],
-  CASE WHEN generate_series < 48 THEN 'DRAFT' ELSE 'PUBLISHED' END,
-  CASE WHEN generate_series < 48 THEN 1 ELSE 2 END,
-  (ARRAY['Comment 1', 'Comment 2', 'Comment 3'])[floor(random() * 3 + 1)],
-  'System',
-  'System',
-  CURRENT_DATE - INTERVAL '3 days'
-FROM generate_series(0, 95) AS generate_series;
+  unit_id,
+  fixed_availability_id,
+  date,
+  hour,
+  market_type,
+  fueltype1_net_cpty,
+  fueltype1_availability_net_cpty,
+  fueltype1_cil,
+  fueltype1_lie,
+  fueltype2_net_cpty,
+  fueltype2_availability_net_cpty,
+  fueltype2_cil,
+  fueltype2_lie,
+  operation_type,
+  'PUBLISHED',  -- Change status to PUBLISHED
+  2,           -- Change status_code to 2
+  comments,
+  created_by,
+  modified_by,
+  modified_on
+FROM draft_records;
 
 -- Insert Hourly Availability (2 days ago - 48 records) for Wind and Solar Unit
 INSERT INTO hourly_availability (

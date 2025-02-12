@@ -59,7 +59,7 @@ FROM unnest(ARRAY[
 INSERT INTO unit (
   id, name, include_cil, include_lie, 
   fueltype1_id, fueltype2_id, ipp_id,
-  created_by, modified_by, modified_on
+  created_by, modified_by, modified_on, timezone
 )
 VALUES (
   uuid_generate_v4(),
@@ -71,7 +71,8 @@ VALUES (
   (SELECT id FROM ipp WHERE name = 'ipp1'),
   'System',
   'System',
-  CURRENT_DATE
+  CURRENT_DATE,
+  'America/Mexico_City'
 ),
 (
   uuid_generate_v4(),
@@ -83,7 +84,60 @@ VALUES (
   (SELECT id FROM ipp WHERE name = 'ipp2'),
   'System',
   'System',
-  CURRENT_DATE
+  CURRENT_DATE,
+  'America/Mexico_City'
+),
+(
+  uuid_generate_v4(),
+  'hermosillom_unit',
+  false,
+  false,
+  (SELECT id FROM fuel_type WHERE name = 'Wind'),
+  NULL,
+  (SELECT id FROM ipp WHERE name = 'ipp1'),
+  'System',
+  'System',
+  CURRENT_DATE,
+  'America/Hermosillo'
+),
+(
+  uuid_generate_v4(),
+  'tijuana_unit',
+  false,
+  false,
+  (SELECT id FROM fuel_type WHERE name = 'Solar'),
+  NULL,
+  (SELECT id FROM ipp WHERE name = 'ipp1'),
+  'System',
+  'System',
+  CURRENT_DATE,
+  'America/Tijuana'
+);
+
+-- Insert Fixed Availability for Hermosillo and Tijuana units
+INSERT INTO fixed_availability (
+  id, unit_id,
+  fueltype1_fixed_net_cpty,
+  effective_date, created_by, modified_by, modified_on
+)
+VALUES 
+(
+  uuid_generate_v4(),
+  (SELECT id FROM unit WHERE name = 'hermosillom_unit'),
+  floor(random() * 501),
+  CURRENT_DATE - INTERVAL '7 days',
+  'System',
+  'System',
+  CURRENT_DATE - INTERVAL '7 days'
+),
+(
+  uuid_generate_v4(),
+  (SELECT id FROM unit WHERE name = 'tijuana_unit'),
+  floor(random() * 501),
+  CURRENT_DATE - INTERVAL '7 days',
+  'System',
+  'System',
+  CURRENT_DATE - INTERVAL '7 days'
 );
 
 -- Insert Fixed Availability for Gas Unit
